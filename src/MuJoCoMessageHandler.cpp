@@ -1,10 +1,10 @@
 #include "MuJoCoMessageHandler.h"
-
 #include "cv_bridge/cv_bridge.h"
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
 #include "opencv2/opencv.hpp"
 #include "sensor_msgs/image_encodings.hpp"
+#include "geometry_msgs/msg/wrench.hpp"
 
 namespace deepbreak {
 
@@ -58,7 +58,7 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
     1ms, std::bind(&MuJoCoMessageHandler::publish_simulation_clock, this)));
   
   // Create subscriber to the cmd commands
-  actuator_cmd_subscription_ = this->create_subscription<mujoco_msgs::msg::Control>("cmd", qos, std::bind(&MuJoCoMessageHandler::actuator_cmd_callback, this, std::placeholders::_1));
+  actuator_cmd_subscription_ = this->create_subscription<geometry_msgs::msg::Wrench>("cmd", qos, std::bind(&MuJoCoMessageHandler::actuator_cmd_callback, this, std::placeholders::_1));
 
   // Message to show that we are using Mujoco
   actuator_cmds_ptr_ = std::make_shared<Control>();
@@ -187,14 +187,15 @@ void MuJoCoMessageHandler::odom_load_callback() {
 }
 
 void MuJoCoMessageHandler::actuator_cmd_callback(
-    const mujoco_msgs::msg::Control::SharedPtr msg) const {
+    const geometry_msgs::msg::Wrench::SharedPtr msg) const {
   if (sim_->d != nullptr) {
     //actuator_cmds_ptr_->time = this->now();
-    actuator_cmds_ptr_->thrust = msg->thrust;
-    actuator_cmds_ptr_->torque_x = msg->torque_x;
-    actuator_cmds_ptr_->torque_y = msg->torque_y;
-    actuator_cmds_ptr_->torque_z = msg->torque_z;
-    // RCLCPP_INFO(this->get_logger(), "subscribe actuator cmds");
+
+    actuator_cmds_ptr_->thrust = msg->force.z;
+    actuator_cmds_ptr_->torque_x = msg->torque.x;
+    actuator_cmds_ptr_->torque_y = msg->torque.y;
+    actuator_cmds_ptr_->torque_z = msg->torque.z;
+
   }
 }
 

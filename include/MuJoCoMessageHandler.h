@@ -9,8 +9,8 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
-#include "mujoco_msgs/msg/control.hpp"
 #include "rosgraph_msgs/msg/clock.hpp"
+#include "geometry_msgs/msg/wrench.hpp"
 
 #include "array_safety.h"
 #include "simulate.h"
@@ -59,7 +59,7 @@ private:
   void imu_callback();
   void publish_simulation_clock();
   void actuator_cmd_callback(
-      const mujoco_msgs::msg::Control::SharedPtr msg) const;
+      const geometry_msgs::msg::Wrench::SharedPtr msg) const;
 
   void img_callback();
 
@@ -77,13 +77,7 @@ private:
   rclcpp::Clock::SharedPtr sim_clock_;
 
   void publish_image();
-  //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr front_camera_publisher_;
-  //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rgb_img_publisher_ptr_;
-  //void publish_image_from_render(const mjvScene* scn, const mjrContext* con, const mjrRect& viewport);
-
-
-  //rclcpp::Subscription<mujoco_msgs::msg::Control>::SharedPtr actuator_cmd_subscription_;
-  rclcpp::Subscription<mujoco_msgs::msg::Control>::SharedPtr actuator_cmd_subscription_;
+  rclcpp::Subscription<geometry_msgs::msg::Wrench>::SharedPtr actuator_cmd_subscription_;
 
   std::shared_ptr<Control> actuator_cmds_ptr_;
 
