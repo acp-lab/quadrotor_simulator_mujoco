@@ -15,7 +15,7 @@
 
   <default>
         <site type="sphere" rgba="1 0 0 1" size="0.005"/>
-        <tendon limited="true" width="0.003" rgba="1 1 1 1"/>
+        <tendon limited="true" width="0.0005" rgba="1 1 1 1"/>
         <geom friction=".2"/>
   </default>
 
@@ -69,13 +69,13 @@
       <site name="imu" pos="0 0 0"/>
       <site name="payload_point_drone" pos="0.0 0.0 -0.00"/>
       <!-- Add bottom-facing camera here -->
-      <!--<camera name="bottom_camera" pos="0 0 -0.2" euler="0 0 -1.57"/>-->
+      <camera name="bottom_camera" pos="0.035 0 -0.015" euler="0 0 -1.57"/>
     </body>
 
     <!-- Payloy only in xyz axis -->
     <body name="payload_ball" pos="0 0 1">
       <joint name="payload_ball" pos="0 0 0" type="free" damping="0.01"/>
-      <geom name="payload_ball" size="0.04" type="sphere" rgba="0 0 0 0.8" mass="0.15" friction="1.0 0.005 0.0001"/>
+      <geom name="payload_ball" size="0.04" type="sphere" rgba="1 0 0 0.8" mass="0.15" friction="1.0 0.005 0.0001"/>
       <site name="payload_point" pos="0.0 0.0 0.04"/>
       <!--  Representation of the body frame   -->
       <site name="load_X" type="box" pos="0.05 0.0 0.0" size="0.05 0.005 0.005" quat=" 1.0 0.0 0.0 0." rgba="1 0 0 1"/>
