@@ -30,7 +30,7 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
   
   // Create publishers
   odom_publisher_ = this->create_publisher<nav_msgs::msg::Odometry>("odom", rclcpp::QoS(10));
-  odom_publisher_load_ = this->create_publisher<nav_msgs::msg::Odometry>("load", rclcpp::QoS(10));
+  odom_publisher_load_ = this->create_publisher<nav_msgs::msg::Odometry>("load/odom", rclcpp::QoS(10));
   imu_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu", rclcpp::QoS(10));
   rgb_img_publisher_ptr_ = this->create_publisher<sensor_msgs::msg::Image>(
     "rgb_image", rclcpp::QoS(10));
