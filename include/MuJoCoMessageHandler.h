@@ -37,7 +37,7 @@ public:
 
   struct Control {
     double time = 0.0;
-    float thrust = 9.81*(1.0);
+    float thrust = 9.81*(1.0 + 0.15);
     float torque_x;
     float torque_y;
     float torque_z;

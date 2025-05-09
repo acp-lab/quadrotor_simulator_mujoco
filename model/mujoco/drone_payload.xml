@@ -13,6 +13,12 @@
             reflectance="0.2" shininess="0.5" specular="0.3" />
   </asset>
 
+  <default>
+        <site type="sphere" rgba="1 0 0 1" size="0.005"/>
+        <tendon limited="true" width="0.003" rgba="1 1 1 1"/>
+        <geom friction=".2"/>
+  </default>
+
   <worldbody>
     <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
     <geom name="floor" type="plane" size="20 20 0.1" material="matchecker" 
@@ -63,7 +69,18 @@
       <site name="imu" pos="0 0 0"/>
       <site name="payload_point_drone" pos="0.0 0.0 -0.00"/>
       <!-- Add bottom-facing camera here -->
-      <camera name="bottom_camera" pos="0 0 -0.2" euler="0 0 -1.57"/>
+      <!--<camera name="bottom_camera" pos="0 0 -0.2" euler="0 0 -1.57"/>-->
+    </body>
+
+    <!-- Payloy only in xyz axis -->
+    <body name="payload_ball" pos="0 0 1">
+      <joint name="payload_ball" pos="0 0 0" type="free" damping="0.01"/>
+      <geom name="payload_ball" size="0.04" type="sphere" rgba="0 0 0 0.8" mass="0.15" friction="1.0 0.005 0.0001"/>
+      <site name="payload_point" pos="0.0 0.0 0.04"/>
+      <!--  Representation of the body frame   -->
+      <site name="load_X" type="box" pos="0.05 0.0 0.0" size="0.05 0.005 0.005" quat=" 1.0 0.0 0.0 0." rgba="1 0 0 1"/>
+      <site name="load_Y" type="box" pos="0.0 0.05 0.0" size="0.05 0.005 0.005" quat=" 0.707 0.0 0.0 0.707" rgba="0 1 0 1"/>
+      <site name="load_Z" type="box" pos="0.0 0.0 0.05" size="0.05 0.005 0.005" quat="-0.707 0.0 0.707 0." rgba="0 0 1 1"/>
     </body>
 
   </worldbody>
@@ -76,11 +93,19 @@
     <motor ctrllimited="true" ctrlrange="-0.5 0.5" gear="0. 0. 0. 0. 0. 1." site="rateZ" name="z_moment"/>
 </actuator>
 
+<tendon>
+        <spatial name="rope1" limited="true" range="0 2">
+            <site site="payload_point_drone"/>
+            <site site="payload_point"/>
+        </spatial>
+</tendon>
+
 <sensor>
     <framequat name="drone_quat" objtype="site" objname="imu" noise="0.00"/>
-    <gyro name="drone_angular_velocity" site="imu" noise="0.00"/>
-    <accelerometer name="drone_linacc" site="imu" noise="0.00"/>
+    <gyro name="drone_angular_velocity" site="imu" noise="0.001"/>
+    <accelerometer name="drone_linacc" site="imu" noise="0.001"/>
     <framepos name="drone_position" objtype="site" objname="imu" noise="0.00"/>
     <velocimeter name="drone_linear_velocity" site="imu" noise="0.00"/>
+    <tendonlimitfrc tendon="rope1" />
 </sensor>
 </mujoco>

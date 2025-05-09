@@ -30,7 +30,7 @@ def generate_launch_description():
         get_package_share_directory('quadrotor_simulator_mujoco'),
         'model',
         platform_type,
-        'drone.xml'
+        'drone_payload.xml'
     ])
 
     # Add default for model_path
