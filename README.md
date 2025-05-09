@@ -3,6 +3,17 @@
 This ROS 2 package simulates the behavior of an aerial vehicle using the advanced physics engine [MuJoCo](https://mujoco.org/). The simulator models a quadrotor with a suspeded payload dynamics, RGB camera, IMU and odometry data.
 
 It relies on MuJoCo version 2.3.2, and there is no need to install MuJoCo separately, since the required `.so` files are bundled within the package.
+## Environment Overview
+
+### Simulation View
+
+![Quadrotor with Payload Environment](images/quadrotor_payload_env.png)
+
+### Camera View
+
+![Quadrotor Camera](images/quadrotor_payload_camera.png)
+
+## Dependencies
 
 ## Dependencies
 
