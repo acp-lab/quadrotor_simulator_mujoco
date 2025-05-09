@@ -39,7 +39,9 @@ ros2 launch quadrotor_simulator_mujoco single_quadrotor_sim.launch.py
 
 ## Available ROS 2 Topics
 
-/quadrotor/cmd          - geometry_msgs/msg/Wrench      - Control input
-/quadrotor/imu          - sensor_msgs/msg/Imu           - Inertial measurement unit data  
-/quadrotor/odom         - nav_msgs/msg/Odometry         - Full odometry
-/quadrotor/rgb_image    - sensor_msgs/msg/Image         - RGB image stream from onboard camera
+| Topic Name            | Message Type                | Description                                  |
+|------------------------|-----------------------------|----------------------------------------------|
+| /quadrotor/cmd         | geometry_msgs/msg/Wrench    | Control input                                |
+| /quadrotor/imu         | sensor_msgs/msg/Imu         | Inertial measurement unit data               |
+| /quadrotor/odom        | nav_msgs/msg/Odometry       | Full odometry                                |
+| /quadrotor/rgb_image   | sensor_msgs/msg/Image       | RGB image stream from onboard camera         |
