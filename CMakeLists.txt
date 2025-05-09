@@ -25,8 +25,6 @@ find_package(geometry_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(nav_msgs REQUIRED)
-find_package(cv_bridge REQUIRED)
-find_package(OpenCV REQUIRED)
 
 # Mujoco location
 if(NOT TARGET mujoco)
@@ -64,7 +62,6 @@ ament_target_dependencies(
   "tf2"
   "tf2_ros"
   "nav_msgs"
-  "cv_bridge"
 )
 
 install(TARGETS quadrotor_simulator
