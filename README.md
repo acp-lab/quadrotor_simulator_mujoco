@@ -34,7 +34,7 @@ source install/setup.bash
 Launch the simulator using:
 
 ```bash
-ros2 launch quadrotor_simulator_mujoco single_quadrotor_sim.launch.py
+ros2 launch quadrotor_simulator_mujoco single_quadrotor_payload_sim.launch.py
 ```
 
 ## Available ROS 2 Topics
