@@ -75,7 +75,7 @@ def generate_launch_description():
     ld.add_action(debug_print)
     ld.add_action(
         GroupAction(actions=[
-            quadrotor_simulator_mujoco_node, flatness_controller_node
+            quadrotor_simulator_mujoco_node
         ])
     )
     return ld
