@@ -1629,7 +1629,7 @@ void Simulate::loadmodel() {
 
   // set window title to model name
   if (this->m->names) {
-    char title[200] = "Mujoco Payload Drones: ";
+    char title[200] = "Mujoco Quadrotor: ";
     mju::strcat_arr(title, this->m->names);
     platform_ui->SetWindowTitle(title);
   }

@@ -30,7 +30,6 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
   
   // Create publishers
   odom_publisher_ = this->create_publisher<nav_msgs::msg::Odometry>("odom", rclcpp::QoS(10));
-  odom_publisher_load_ = this->create_publisher<nav_msgs::msg::Odometry>("load", rclcpp::QoS(10));
   imu_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu", rclcpp::QoS(10));
   rgb_img_publisher_ptr_ = this->create_publisher<sensor_msgs::msg::Image>(
     "rgb_image", rclcpp::QoS(10));
@@ -40,9 +39,6 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
   // Timer since we are using Mujoco
   timers_.emplace_back(this->create_wall_timer(
       std::chrono::duration<double>(1.0 / rate_odom), std::bind(&MuJoCoMessageHandler::odom_callback, this)));
-
-  timers_.emplace_back(this->create_wall_timer(
-      std::chrono::duration<double>(1.0 / rate_odom), std::bind(&MuJoCoMessageHandler::odom_load_callback, this)));
 
   timers_.emplace_back(this->create_wall_timer(
       std::chrono::duration<double>(1.0 / rate_imu), std::bind(&MuJoCoMessageHandler::imu_callback, this)));
@@ -152,34 +148,6 @@ void MuJoCoMessageHandler::publish_image_from_render(const mjvScene* scn, const 
 
     rgb_img_publisher_ptr_->publish(image_msg);
     std::free(rgb_data);
-}
-
-void MuJoCoMessageHandler::odom_load_callback() {
-
-  const std::lock_guard<std::mutex> lock(sim_->mtx);
-  if (sim_->d != nullptr) {
-    auto message = nav_msgs::msg::Odometry();
-    message.header.stamp = this->now();
-    message.header.frame_id = world_frame_id_;
-
-    message.pose.pose.position.x = sim_->d->qpos[7];
-    message.pose.pose.position.y = sim_->d->qpos[8];
-    message.pose.pose.position.z = sim_->d->qpos[9];
-
-    message.pose.pose.orientation.w = sim_->d->qpos[10];
-    message.pose.pose.orientation.x = sim_->d->qpos[11];
-    message.pose.pose.orientation.y = sim_->d->qpos[12];
-    message.pose.pose.orientation.z = sim_->d->qpos[13];
-
-    message.twist.twist.linear.x = sim_->d->qvel[6];
-    message.twist.twist.linear.y = sim_->d->qvel[7];
-    message.twist.twist.linear.z = sim_->d->qvel[8];
-
-    message.twist.twist.angular.x = sim_->d->qvel[9];
-    message.twist.twist.angular.y = sim_->d->qvel[10];
-    message.twist.twist.angular.z = sim_->d->qvel[11];
-    odom_publisher_load_->publish(message);
-  }
 }
 
 void MuJoCoMessageHandler::actuator_cmd_callback(
