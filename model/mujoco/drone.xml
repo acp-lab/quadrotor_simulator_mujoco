@@ -63,7 +63,7 @@
       <site name="imu" pos="0 0 0"/>
       <site name="payload_point_drone" pos="0.0 0.0 -0.00"/>
       <!-- Add bottom-facing camera here -->
-      <camera name="bottom_camera" pos="0 0 -0.2" euler="0 0 -1.57"/>
+      <camera name="bottom_camera" pos="0.035 0 -0.015" euler="0 0 -1.57"/>
     </body>
 
   </worldbody>
