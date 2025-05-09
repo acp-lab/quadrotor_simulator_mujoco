@@ -4,6 +4,16 @@ This ROS 2 package simulates the behavior of an aerial vehicle using the advance
 
 It relies on MuJoCo version 2.3.2, and there is no need to install MuJoCo separately, since the required `.so` files are bundled within the package.
 
+## Environment Overview
+
+### Simulation View
+
+![Quadrotor Environment](images/quadrotor_env.png)
+
+### Camera View
+
+![Quadrotor Camera](images/quadrotor_camera.png)
+
 ## Dependencies
 
 Install the required system libraries:
