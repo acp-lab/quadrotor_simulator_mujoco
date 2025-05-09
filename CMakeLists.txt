@@ -36,7 +36,6 @@ endif()
 include_directories(
   ${rclcpp_INCLUDE_DIRS}
   ${sensor_msgs_INCLUDE_DIRS}
-  ${cv_bridge_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
 )
 # Include location of the executables files
