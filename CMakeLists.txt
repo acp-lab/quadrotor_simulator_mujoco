@@ -25,6 +25,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(nav_msgs REQUIRED)
+find_package(OpenCV REQUIRED)
 
 # Mujoco location
 if(NOT TARGET mujoco)
@@ -35,6 +36,8 @@ endif()
 include_directories(
   ${rclcpp_INCLUDE_DIRS}
   ${sensor_msgs_INCLUDE_DIRS}
+  ${cv_bridge_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 # Include location of the executables files
 file(GLOB_RECURSE source ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
@@ -60,6 +63,7 @@ ament_target_dependencies(
   "tf2"
   "tf2_ros"
   "nav_msgs"
+  "cv_bridge"
 )
 
 install(TARGETS quadrotor_simulator

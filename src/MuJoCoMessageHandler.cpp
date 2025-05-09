@@ -1,4 +1,7 @@
 #include "MuJoCoMessageHandler.h"
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
+#include "opencv2/opencv.hpp"
 #include "sensor_msgs/image_encodings.hpp"
 #include "geometry_msgs/msg/wrench.hpp"
 
