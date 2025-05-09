@@ -1,4 +1,4 @@
-# Quadrotor Simulator in MuJoCo
+# Quadrotor with Suspended Load Simulator in MuJoCo
 
 This ROS 2 package simulates the behavior of an aerial vehicle using the advanced physics engine [MuJoCo](https://mujoco.org/). The simulator models a quadrotor with a suspeded payload dynamics, RGB camera, IMU and odometry data.
 
