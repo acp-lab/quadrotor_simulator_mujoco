@@ -15,14 +15,6 @@ sudo apt update
 sudo apt install libglfw3-dev
 ```
 
-Install ROS 2 Python and visualization dependencies (if not already installed):
-
-```bash
-sudo apt install python3-colcon-common-extensions  
-sudo apt install ros-humble-rqt-image-view  
-sudo apt install ros-humble-cv-bridge  
-sudo apt install ros-humble-image-transport
-```
 ## Installation
 
 Clone the package into your ROS 2 workspace src folder:
