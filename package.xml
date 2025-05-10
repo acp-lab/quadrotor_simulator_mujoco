@@ -11,13 +11,10 @@
 
   <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
-  <depend>mujoco_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
   <depend>nav_msgs</depend>
-  <depend>cv_bridge</depend>
-  <depend>OpenCV</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
