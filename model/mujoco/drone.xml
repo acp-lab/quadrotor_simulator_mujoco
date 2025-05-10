@@ -76,7 +76,7 @@
 
       <!--  Actuators of the system   -->
 <actuator>
-    <motor ctrllimited="true" ctrlrange="0 20.0" gear="0 0. 1. 0. 0. 0." site="thrust" name="body_thrust"/>
+    <motor ctrllimited="true" ctrlrange="0 42.0" gear="0 0. 1. 0. 0. 0." site="thrust" name="body_thrust"/>
     <motor ctrllimited="true" ctrlrange="-0.5 0.5" gear="0. 0. 0. 1. 0. 0." site="rateX" name="x_moment"/>
     <motor ctrllimited="true" ctrlrange="-0.5 0.5" gear="0. 0. 0. 0. 1. 0." site="rateY" name="y_moment"/>
     <motor ctrllimited="true" ctrlrange="-0.5 0.5" gear="0. 0. 0. 0. 0. 1." site="rateZ" name="z_moment"/>
