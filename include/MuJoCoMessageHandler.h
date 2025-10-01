@@ -11,6 +11,9 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include "rosgraph_msgs/msg/clock.hpp"
 #include "geometry_msgs/msg/wrench.hpp"
+#include <eigen3/Eigen/Geometry>
+#include <eigen3/Eigen/Dense>
+
 
 #include "array_safety.h"
 #include "simulate.h"
@@ -61,7 +64,9 @@ private:
   void actuator_cmd_callback(
       const geometry_msgs::msg::Wrench::SharedPtr msg) const;
 
-  void img_callback();
+  void SO3Control();
+  static Eigen::Matrix3d quatToRot(const Eigen::Vector4d & q);
+  static Eigen::Vector3d vee(const Eigen::Matrix3d & R);
 
   mj::Simulate *sim_;
   std::string name_prefix, model_param_name;
@@ -82,6 +87,94 @@ private:
   std::shared_ptr<Control> actuator_cmds_ptr_;
 
   std::thread spin_thread;
+
+  // variables system
+  Eigen::Matrix<double,3,1> xd_ =
+    (Eigen::Matrix<double,3,1>() <<
+         0.0, 0.0, 0.0             // desired position  x y z
+    ).finished();
+
+  Eigen::Matrix<double,3,1> vd_ =
+    (Eigen::Matrix<double,3,1>() <<
+         0.0, 0.0, 0.0             // desired velocity  vx vy vz
+    ).finished();
+
+  Eigen::Matrix<double,3,1> ad_ =
+    (Eigen::Matrix<double,3,1>() <<
+         0.0, 0.0, 0.0             // desired acceleration  vx vy vz
+    ).finished();
+
+  Eigen::Matrix<double,4,1> qd_ =
+    (Eigen::Matrix<double,4,1>() <<
+        1.0, 0.0, 0.0, 0.0             // desired quaternion  qw qx qy qz
+    ).finished();
+
+  Eigen::Matrix<double,3,1> wd_ =
+    (Eigen::Matrix<double,3,1>() <<
+         0.0, 0.0, 0.0             // desired angular velocity  wx wy wz
+    ).finished();
+
+  double psid_{0.0};
+
+  double g_{9.8};
+
+  Eigen::Matrix<double,3,1> gravityVector_ =
+    (Eigen::Matrix<double,3,1>() <<
+         0.0, 0.0, g_             // Gravity Vector
+    ).finished();
+
+  Eigen::Matrix<double,3,1> ez_ =
+    (Eigen::Matrix<double,3,1>() <<
+         0.0, 0.0, 1.0             // Unit Vector z
+    ).finished();
+
+  Eigen::Matrix<double,3,1> x_ =
+    (Eigen::Matrix<double,3,1>() <<
+         0.0, 0.0, 0.0             // position  x y z
+    ).finished();
+
+  Eigen::Matrix<double,4,1> q_ =
+    (Eigen::Matrix<double,4,1>() <<
+        1.0, 0.0, 0.0, 0.0             // quaternion  qw qx qy qz
+    ).finished();
+
+  Eigen::Matrix<double,3,1> v_ =
+    (Eigen::Matrix<double,3,1>() <<
+         0.0, 0.0, 0.0             //velocity  vx vy vz
+    ).finished();
+
+  Eigen::Matrix<double,3,1> w_ =
+    (Eigen::Matrix<double,3,1>() <<
+         0.0, 0.0, 0.0             // angular velocity  wx wy wz
+    ).finished();
+
+  // Define gains of the controller
+  double kp_x_{10.0};
+  double kp_y_{10.0};
+  double kp_z_{10.0};
+  Eigen::Matrix3d KP_ = Eigen::Vector3d(kp_x_, kp_y_, kp_z_).asDiagonal();
+
+  double kv_x_{6.0};
+  double kv_y_{6.0};
+  double kv_z_{6.0};
+  Eigen::Matrix3d KV_ = Eigen::Vector3d(kv_x_, kv_y_, kv_z_).asDiagonal();
+
+  double kw_x_{40.0};
+  double kw_y_{40.0};
+  double kw_z_{40.0};
+  Eigen::Matrix3d KW_ = Eigen::Vector3d(kw_x_, kw_y_, kw_z_).asDiagonal();
+
+  double kq_x_{250.0};
+  double kq_y_{250.0};
+  double kq_z_{40.0};
+  Eigen::Matrix3d KQ_ = Eigen::Vector3d(kq_x_, kq_y_, kq_z_).asDiagonal();
+
+  // Mass of the Quadrotor
+  double mass_{1.0 + 0.15};
+
+  Eigen::Matrix3d J_ = Eigen::Vector3d(0.00305587, 0.00159695, 0.00159687).asDiagonal();
+
+
 };
 
 } // namespace deepbreak

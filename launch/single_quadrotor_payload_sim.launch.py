@@ -12,7 +12,7 @@ def generate_launch_description():
         DeclareLaunchArgument('name', default_value='quadrotor'),
         DeclareLaunchArgument('platform_type', default_value='mujoco'),
         DeclareLaunchArgument('world_frame_id', default_value='world'),
-        DeclareLaunchArgument('rate_odom', default_value='200.0'),
+        DeclareLaunchArgument('rate_odom', default_value='400.0'),
         DeclareLaunchArgument('rate_imu', default_value='500.0'),
         DeclareLaunchArgument('use_dq_control', default_value='false'),
     ]

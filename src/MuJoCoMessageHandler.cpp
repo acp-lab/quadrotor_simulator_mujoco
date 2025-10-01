@@ -46,6 +46,9 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
       std::chrono::duration<double>(1.0 / rate_imu), std::bind(&MuJoCoMessageHandler::imu_callback, this)));
 
   timers_.emplace_back(this->create_wall_timer(
+      std::chrono::duration<double>(1.0 / rate_odom), std::bind(&MuJoCoMessageHandler::SO3Control, this)));
+
+  timers_.emplace_back(this->create_wall_timer(
     1ms, std::bind(&MuJoCoMessageHandler::publish_simulation_clock, this)));
   
   // Create subscriber to the cmd commands
@@ -75,10 +78,16 @@ void MuJoCoMessageHandler::odom_callback() {
     message.pose.pose.position.y = sim_->d->qpos[1];
     message.pose.pose.position.z = sim_->d->qpos[2];
 
+
     message.pose.pose.orientation.w = sim_->d->qpos[3];
     message.pose.pose.orientation.x = sim_->d->qpos[4];
     message.pose.pose.orientation.y = sim_->d->qpos[5];
     message.pose.pose.orientation.z = sim_->d->qpos[6];
+
+    // Update system states
+    x_ << sim_->d->qpos[0], sim_->d->qpos[1], sim_->d->qpos[2];
+    q_ << sim_->d->qpos[3], sim_->d->qpos[4], sim_->d->qpos[5], sim_->d->qpos[6];
+    Eigen::Matrix3d R     = quatToRot(q_);
 
     // Velocities body frame
     for (int i = 0; i < sim_->m->nsensor; i++) {
@@ -86,14 +95,110 @@ void MuJoCoMessageHandler::odom_callback() {
           message.twist.twist.linear.x = sim_->d->sensordata[sim_->m->sensor_adr[i]];
           message.twist.twist.linear.y = sim_->d->sensordata[sim_->m->sensor_adr[i] +1];
           message.twist.twist.linear.z = sim_->d->sensordata[sim_->m->sensor_adr[i] + 2];
+          // Vector Velocity body frame
+          Eigen::Matrix<double,3,1> vb = (Eigen::Matrix<double,3,1>() << sim_->d->sensordata[sim_->m->sensor_adr[i]], sim_->d->sensordata[sim_->m->sensor_adr[i] +1], sim_->d->sensordata[sim_->m->sensor_adr[i] + 2]).finished();
+
+          // Velocity Inertial frame
+          v_ = R*vb;
       } 
       if (sim_->m->sensor_type[i] == mjtSensor::mjSENS_GYRO) {
           message.twist.twist.angular.x = sim_->d->sensordata[sim_->m->sensor_adr[i]];
           message.twist.twist.angular.y = sim_->d->sensordata[sim_->m->sensor_adr[i] + 1];
           message.twist.twist.angular.z = sim_->d->sensordata[sim_->m->sensor_adr[i] + 2];
+          w_ << sim_->d->sensordata[sim_->m->sensor_adr[i]], sim_->d->sensordata[sim_->m->sensor_adr[i] + 1], sim_->d->sensordata[sim_->m->sensor_adr[i] + 2];
       } 
     }
     odom_publisher_->publish(message);
+  }
+}
+
+Eigen::Matrix3d MuJoCoMessageHandler::quatToRot(const Eigen::Vector4d & qvec)
+{
+  // Assumes q = [w, x, y, z]  (same ordering as your Python code)
+  const double q0 = qvec(0);
+  const double q1 = qvec(1);
+  const double q2 = qvec(2);
+  const double q3 = qvec(3);
+
+  const double q0q0 = q0 * q0;
+  const double q1q1 = q1 * q1;
+  const double q2q2 = q2 * q2;
+  const double q3q3 = q3 * q3;
+
+  Eigen::Matrix3d R;
+  R <<
+      q0q0 + q1q1 - q2q2 - q3q3,  2.0 * (q1 * q2 - q0 * q3),   2.0 * (q1 * q3 + q0 * q2),
+      2.0 * (q1 * q2 + q0 * q3),  q0q0 + q2q2 - q1q1 - q3q3,   2.0 * (q2 * q3 - q0 * q1),
+      2.0 * (q1 * q3 - q0 * q2),  2.0 * (q2 * q3 + q0 * q1),   q0q0 + q3q3 - q1q1 - q2q2;
+
+  return R;
+}
+
+Eigen::Vector3d MuJoCoMessageHandler::vee(const Eigen::Matrix3d & S)
+{
+  return Eigen::Vector3d(S(2,1), S(0,2), S(1,0));
+}
+
+void MuJoCoMessageHandler::SO3Control() {
+  const std::lock_guard<std::mutex> lock(sim_->mtx);
+  if (sim_->d != nullptr) {
+    //  Modity Desired Position
+    xd_ << 2.0, 1.0, 3.0;
+
+    //  Modity Desired Velocity
+    vd_ << 0.0, 0.0, 0.0;
+
+    // MOdity Acceleration
+    ad_ <<0.0, 0.0, 0.0;
+
+
+    Eigen::Matrix<double,3,1> mu = KP_*(xd_ - x_) + KV_*(vd_ - v_) + ad_ ;
+    Eigen::Matrix<double,3,1> force =  mass_ * (mu + g_*ez_);
+
+    // Compute Rotation Matrix
+    Eigen::Matrix3d R     = quatToRot(q_);
+    Eigen::Vector3d Zb   = (R * ez_);
+
+    // Force in body frame
+     const double f = Zb.dot(force);
+
+     // compute desired Rotation matrix
+    Eigen::Vector3d Zb_d   = force/force.norm();
+    Eigen::Vector3d Xc_d(std::cos(psid_), std::sin(psid_), 0.0);
+
+    Eigen::Vector3d cross_z_x = Zb_d.cross(Xc_d);
+    double ny = cross_z_x.norm();
+    Eigen::Vector3d Yb_d = cross_z_x/ny;
+
+    Eigen::Vector3d Xb_d = Yb_d.cross(Zb_d);
+
+    // Desired Orientation matrix
+    Eigen::Matrix3d R_d;
+    R_d.col(0) = Xb_d;
+    R_d.col(1) = Yb_d;
+    R_d.col(2) = Zb_d;
+
+    // Rotation error
+    Eigen::Matrix3d S_err = R_d.transpose()*R - R.transpose()*R_d;
+    Eigen::Vector3d e_R = 0.5 * vee(S_err);
+
+    // Angular velocity error e_ω = ω − Rᵀ R_d ω_d
+    wd_ << 0.0, 0.0, 0.0;
+    Eigen::Vector3d w_ref_in_body = R.transpose() * R_d * wd_;
+    Eigen::Vector3d e_omega = w_ - w_ref_in_body;
+
+    // Coriolis/gyroscopic term: c = ω × (I ω)
+    Eigen::Vector3d Iw = J_ * w_;
+    Eigen::Vector3d c = w_.cross(Iw);
+
+    // Moments: M = c − I (K_R e_R) − I (K_ω e_ω)
+    Eigen::Vector3d M =
+      c - J_ * (KQ_ * e_R) - J_ * (KW_ * e_omega);
+
+    actuator_cmds_ptr_->thrust = f;
+    actuator_cmds_ptr_->torque_x = M(0);
+    actuator_cmds_ptr_->torque_y = M(1);
+    actuator_cmds_ptr_->torque_z = M(2);
   }
 }
 
