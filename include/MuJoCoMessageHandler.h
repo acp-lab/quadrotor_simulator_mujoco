@@ -72,11 +72,11 @@ private:
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher_load_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_publisher_;
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rgb_img_publisher_ptr_;
+  //rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rgb_img_publisher_ptr_;
   rclcpp::Publisher<rosgraph_msgs::msg::Clock>::SharedPtr clock_pub_;
   rclcpp::Clock::SharedPtr sim_clock_;
 
-  void publish_image();
+  //void publish_image();
   rclcpp::Subscription<geometry_msgs::msg::Wrench>::SharedPtr actuator_cmd_subscription_;
 
   std::shared_ptr<Control> actuator_cmds_ptr_;

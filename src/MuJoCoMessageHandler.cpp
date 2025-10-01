@@ -32,8 +32,6 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
   odom_publisher_ = this->create_publisher<nav_msgs::msg::Odometry>("odom", rclcpp::QoS(10));
   odom_publisher_load_ = this->create_publisher<nav_msgs::msg::Odometry>("load/odom", rclcpp::QoS(10));
   imu_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu", rclcpp::QoS(10));
-  rgb_img_publisher_ptr_ = this->create_publisher<sensor_msgs::msg::Image>(
-    "rgb_image", rclcpp::QoS(10));
   
   clock_pub_ = this->create_publisher<rosgraph_msgs::msg::Clock>("/clock", 100);
 
@@ -46,9 +44,6 @@ MuJoCoMessageHandler::MuJoCoMessageHandler(mj::Simulate *sim)
 
   timers_.emplace_back(this->create_wall_timer(
       std::chrono::duration<double>(1.0 / rate_imu), std::bind(&MuJoCoMessageHandler::imu_callback, this)));
-
-  timers_.emplace_back(
-  this->create_wall_timer(2000ms, std::bind(&MuJoCoMessageHandler::publish_image, this))); 
 
   timers_.emplace_back(this->create_wall_timer(
     1ms, std::bind(&MuJoCoMessageHandler::publish_simulation_clock, this)));
@@ -100,58 +95,6 @@ void MuJoCoMessageHandler::odom_callback() {
     }
     odom_publisher_->publish(message);
   }
-}
-void MuJoCoMessageHandler::publish_image() {
-  if (!sim_ || !sim_->m) return;
-
-  const mjvScene* scn = &sim_->scn;
-  const mjrContext* con = &sim_->platform_ui->mjr_context();
-  const mjrRect& viewport = sim_->uistate.rect[3];  // or any suitable rect
-
-  publish_image_from_render(scn, con, viewport);
-}
-void MuJoCoMessageHandler::publish_image_from_render(const mjvScene* scn, const mjrContext* con, const mjrRect& viewport) {
-    int W = viewport.width;
-    int H = viewport.height;
-
-    unsigned char* rgb_data = (unsigned char*)std::malloc(3 * W * H);
-    if (!rgb_data) {
-        RCLCPP_ERROR(this->get_logger(), "Failed to allocate memory for render image.");
-        return;
-    }
-
-    mjr_readPixels(rgb_data, nullptr, viewport, con);
-
-    // Optional: skip black frames
-    bool is_black = std::all_of(rgb_data, rgb_data + 3 * W * H,
-                                 [](unsigned char v) { return v == 0; });
-    if (is_black) {
-        RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 2000, "Skipped black frame");
-        std::free(rgb_data);
-        return;
-    }
-
-    // Flip vertically
-    std::vector<unsigned char> flipped_data(3 * W * H);
-    for (int row = 0; row < H; ++row) {
-        std::memcpy(
-            &flipped_data[3 * W * row],
-            &rgb_data[3 * W * (H - 1 - row)],
-            3 * W
-        );
-    }
-
-    sensor_msgs::msg::Image image_msg;
-    image_msg.header.stamp = this->now();
-    image_msg.header.frame_id = body_frame_id_;
-    image_msg.height = H;
-    image_msg.width = W;
-    image_msg.encoding = "rgb8";
-    image_msg.step = W * 3;
-    image_msg.data = std::move(flipped_data);
-
-    rgb_img_publisher_ptr_->publish(image_msg);
-    std::free(rgb_data);
 }
 
 void MuJoCoMessageHandler::odom_load_callback() {
