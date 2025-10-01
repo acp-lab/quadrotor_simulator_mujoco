@@ -24,6 +24,7 @@
     <geom name="floor" type="plane" size="20 20 0.1" material="matchecker" 
       rgba="1 1 1 1" friction="1.0 0.005 0.0001" condim="3"/>
 
+      <camera name="camera" pos="0 -5 3" euler="1.57 0 0"/>
     <!-- System Models -->
     <!-- Quadrotor body -->
     <body name="drone" pos="0 0 2" euler="0 0 0">

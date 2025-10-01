@@ -1650,7 +1650,7 @@ void Simulate::loadmodel() {
   // ----------------------- SELECT BOTTOM CAMERA AUTOMATICALLY ---------------------------
   for (int cam_id = 0; cam_id < this->m->ncam; cam_id++) {
     const char* cam_name = this->m->names + this->m->name_camadr[cam_id];
-    if (!strcmp(cam_name, "free")) {
+    if (!strcmp(cam_name, "camera")) {
       this->camera = 2 + cam_id;  // camera selector index
       this->cam.type = mjCAMERA_FIXED;
       this->cam.fixedcamid = cam_id;

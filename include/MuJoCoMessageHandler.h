@@ -114,7 +114,7 @@ private:
          0.0, 0.0, 0.0             // desired angular velocity  wx wy wz
     ).finished();
 
-  double psid_{0.0};
+  double psid_{1.57};
 
   double g_{9.8};
 
